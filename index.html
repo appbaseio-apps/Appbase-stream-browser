@@ -1,0 +1,174 @@
+<html>
+<head>
+	<title>My First React.js App</title>
+	<script src="https://fb.me/react-0.13.3.js"></script>
+	<script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+	<script src="bower_components/appbase-js/browser/appbase.js"></script>
+	<style type="text/css">
+		pre {
+			background-color: ghostwhite;
+			border: 1px solid silver;
+			padding: 10px 20px;
+			margin: 20px; 
+		}
+		.json-key {
+			color: brown;
+		}
+		.json-value {
+			color: navy;
+		}
+		.json-string {
+			color: olive;
+		}
+		/* Start of Column CSS */
+		#container2 {
+			clear:left;
+			float:left;
+			width:100%;
+			overflow:hidden;
+			background:#bdc3c7; /* column 2 background colour */
+		}
+		#container1 {
+			float:left;
+			width:100%;
+			position:relative;
+			right:50%;
+			background:#ecf0f1; /* column 1 background colour */
+		}
+		#col1 {
+			float:left;
+			width:46%;
+			position:relative;
+			left:52%;
+			overflow:hidden;
+		}
+		#col2 {
+			float:left;
+			width:46%;
+			position:relative;
+			left:56%;
+			overflow:hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="container2">
+		<div id="container1">
+			<div id="col1">First Column</div>
+			<div id="col2"></div>
+		</div>
+	</div>
+	<script type="text/jsx">
+		if (!library)
+   			var library = {};
+		library.json = {
+			replacer: function(match, pIndent, pKey, pVal, pEnd) {
+				var key = '<span class=json-key>';
+				var val = '<span class=json-value>';
+				var str = '<span class=json-string>';
+				var r = pIndent || '';
+				if (pKey)
+					r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+				if (pVal)
+					r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+				return r + (pEnd || '');
+			},
+			prettyPrint: function(obj) {
+				var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+					return {__html: JSON.stringify(obj, null, 3)
+					.replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+					.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+					.replace(jsonLine, library.json.replacer)};
+			}
+		};
+		var Post = React.createClass({
+		  render: function(){
+		    var data = this.props.data;
+		    console.log(data)
+		    return (
+		    	<pre><code dangerouslySetInnerHTML={library.json.prettyPrint(data)}></code></pre>
+		    )
+		  }
+		});
+
+		var Posts = React.createClass({
+
+		  // Render our tweets
+		  render: function(){
+
+		    // Build list items of single tweet components using map
+		    var content = this.props.posts.map(function(post){
+		      return (
+		        <Post data={post} />
+		      )
+		    });
+
+		    // Return ul filled with our mapped tweets
+		    return (
+		      <ul className="posts">{content}</ul>
+		    )
+
+		  }
+
+		});
+		var Feed = React.createClass({
+		  	addPost: function(post){
+		  		// Get current application state
+	    		var updated = this.state.posts;
+	    		updated.unshift(post);
+	    		this.setState({posts: updated});
+
+		  	},
+
+		  	// Set the initial component state
+			getInitialState: function(){
+				// Set initial application state using props
+				return {
+				  posts: []
+				};
+
+			},
+
+			// Called directly after component rendering, only on client
+			componentDidMount: function(){
+
+				// Preserve self reference
+				var self = this;
+				var appbaseRef = new Appbase({
+				  url: 'https://scalr.api.appbase.io',
+				  appname: 'testgsoc',
+				  username: 'JxGrCcfHZ',
+				  password: '1c46a541-98fa-404c-ad61-d41571a82e14'
+				});
+
+				appbaseRef.searchStream({
+					type: 'flipkart_app',
+					body: {
+						"query" : {
+							"match_all" : {}
+						}
+					}
+				}).on('data', function(response) {
+				    self.addPost(response);
+				    // console.log("searchStream(), new match: ", response);
+				}).on('error', function(error) {
+				    console.log("caught a searchStream() error: ", error)
+				})
+			},
+		  	// Render the component
+			render: function(){
+				return (
+				  <div className="feed">
+				    <Posts posts={this.state.posts} />
+				  </div>
+				)
+			}
+		})
+		React.render(
+	      <Feed />,
+	      document.getElementById('col2')
+	    )
+	</script>
+
+</body>
+</html>
