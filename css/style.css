@@ -1,0 +1,44 @@
+pre {
+	background-color: ghostwhite;
+	border: 1px solid silver;
+	padding: 10px 20px;
+	margin: 20px; 
+}
+.json-key {
+	color: brown;
+}
+.json-value {
+	color: navy;
+}
+.json-string {
+	color: olive;
+}
+/* Start of Column CSS */
+#container2 {
+	clear:left;
+	float:left;
+	width:100%;
+	overflow:hidden;
+	background:#bdc3c7; /* column 2 background colour */
+}
+#container1 {
+	float:left;
+	width:100%;
+	position:relative;
+	right:50%;
+	background:#ecf0f1; /* column 1 background colour */
+}
+#col1 {
+	float:left;
+	width:46%;
+	position:relative;
+	left:52%;
+	overflow:hidden;
+}
+#col2 {
+	float:left;
+	width:46%;
+	position:relative;
+	left:56%;
+	overflow:hidden;
+}
