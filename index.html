@@ -86,8 +86,18 @@
 			// Set the initial component state
 			getInitialState: function(){
 				// Set initial application state using props
+				var query={
+				  "query": {
+				    "match_all": {
+				      
+				    }
+				  }
+				}
 				return {
-					value:{username: "", password: "", query: ""},	
+					username: "",
+					password: "",
+					app_name: "",
+					query: JSON.stringify(query,null,'\t'),
 				  	posts: []
 				};
 
@@ -133,11 +143,12 @@
 					<div id="col1">
 						<form className="queryForm" onSubmit={this.executeQuery}>
 							<h2> Appbase Stream browser </h2>
-					        <input type="text" placeholder="Username" />
-					        <input type="text" placeholder="Passowrd" />
-					        <input type="text" placeholder="Appname" />
+							<Select onSelected={this.setValue} />
+					        <input type="text" placeholder="Username" value={this.state.username} />
+					        <input type="text" placeholder="Passowrd" value={this.state.password} />
+					        <input type="text" placeholder="Appname" value={this.state.app_name} />
 					        <input type="text" placeholder="Type" />
-					        <textarea placeholder="Query"  />
+					        <textarea placeholder="Query"  value={this.state.query}/>
 					        <button type="submit"> Execute </button>
 					    </form>
 					</div>
