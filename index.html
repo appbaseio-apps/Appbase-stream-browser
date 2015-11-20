@@ -4,12 +4,82 @@
 	<script src="https://fb.me/react-0.13.3.js"></script>
 	<script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
 	<script src="bower_components/appbase-js/browser/appbase.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
 	<div id="container2">
 	</div>
 	<script type="text/jsx">
+
+		var Select= React.createClass({
+
+			getInitialState: function() {
+				var self=this;
+				$.ajaxSetup({
+					crossDomain: true,
+					xhrFields: {
+						withCredentials: true
+					}
+				});
+
+				$.ajax({
+					type: "GET",
+					url: 'https://accapi.appbase.io/user',
+					dataType: 'json',
+					contentType: "application/json",
+
+					success: function(data) {
+						self.setState({options: data.body.apps});
+					}.bind(this),
+					error: function(xhr, status, err) {
+						console.error(this.props.url, status, err.toString());
+					}.bind(this)
+				});
+
+				return {
+					options: [],
+					app_id: '' 
+				};
+			},
+
+			change: function(event){
+				this.setState({app_id: event.target.value});
+				var index = event.nativeEvent.target.selectedIndex;
+				var app_name=event.nativeEvent.target[index].text;
+
+				$.ajaxSetup({
+					crossDomain: true,
+					xhrFields: {
+						withCredentials: true
+					}
+				});
+
+				$.ajax({
+					type: "GET",
+					url: 'https://accapi.appbase.io/app/' + event.target.value + '/permissions',
+					dataType: 'json',
+					contentType: "application/json",
+					success: function(data) {
+							this.props.onSelected(data.body[0].username, data.body[0].password, app_name)
+					}.bind(this),
+					error: function(xhr, status, err) {
+						console.error(this.props.url, status, err.toString());
+					}.bind(this)
+				});
+			},
+
+			render: function() {
+				options = $.map(this.state.options, function(app_id, app_name){
+					return <option value={app_id}>{app_name}</option>;
+				});
+				return(
+					<select id="app_info" onChange={this.change} value={this.state.app_id}>
+						{options}
+					</select>
+				)
+			}
+		});
 		if (!library)
    			var library = {};
 		library.json = {
@@ -45,8 +115,6 @@
 
 		  // Render our tweets
 		  render: function(){
-		    console.log(this.props.posts )
-
 		    // Build list items of single tweet components using map
 
 		    var content;
