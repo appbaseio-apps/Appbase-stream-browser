@@ -8,10 +8,6 @@
 </head>
 <body>
 	<div id="container2">
-		<div id="container1">
-			<div id="col1">First Column</div>
-			<div id="col2"></div>
-		</div>
 	</div>
 	<script type="text/jsx">
 		if (!library)
@@ -39,7 +35,6 @@
 		var Post = React.createClass({
 		  render: function(){
 		    var data = this.props.data;
-		    console.log(data)
 		    return (
 		    	<pre><code dangerouslySetInnerHTML={library.json.prettyPrint(data)}></code></pre>
 		    )
@@ -50,44 +45,64 @@
 
 		  // Render our tweets
 		  render: function(){
+		    console.log(this.props.posts )
 
 		    // Build list items of single tweet components using map
-		    var content = this.props.posts.map(function(post){
-		      return (
-		        <Post data={post} />
-		      )
-		    });
+
+		    var content;
+		    if (this.props.posts.length > 0) {
+		      content = this.props.posts.map(function(post) {
+		        return <Post data={post} />;
+		      });
+		    } else {
+		      content = <p>Please click on Execute!</p>;
+		    }
 
 		    // Return ul filled with our mapped tweets
 		    return (
-		      <ul className="posts">{content}</ul>
+		      <ul className="posts">
+		      	{content}
+		      </ul>
 		    )
 
 		  }
 
 		});
 		var Feed = React.createClass({
-		  	addPost: function(post){
+
+		  	// Render the component
+			render: function(){
+
+				return (
+				  <div className="feed">
+				    <Posts posts={this.props.posts} />
+				  </div>
+				)
+			}
+		})
+		
+		var StreamBrowser = React.createClass({
+
+			// Set the initial component state
+			getInitialState: function(){
+				// Set initial application state using props
+				return {
+					value:{username: "", password: "", query: ""},	
+				  	posts: []
+				};
+
+			},
+		
+			addPost: function(post){
 		  		// Get current application state
 	    		var updated = this.state.posts;
 	    		updated.unshift(post);
 	    		this.setState({posts: updated});
 
 		  	},
+			executeQuery: function(e){
+								// Preserve self reference
 
-		  	// Set the initial component state
-			getInitialState: function(){
-				// Set initial application state using props
-				return {
-				  posts: []
-				};
-
-			},
-
-			// Called directly after component rendering, only on client
-			componentDidMount: function(){
-
-				// Preserve self reference
 				var self = this;
 				var appbaseRef = new Appbase({
 				  url: 'https://scalr.api.appbase.io',
@@ -109,20 +124,36 @@
 				}).on('error', function(error) {
 				    console.log("caught a searchStream() error: ", error)
 				})
+				e.preventDefault();
 			},
-		  	// Render the component
-			render: function(){
+
+			render: function() {
 				return (
-				  <div className="feed">
-				    <Posts posts={this.state.posts} />
-				  </div>
-				)
+					<div id ="container1">
+					<div id="col1">
+						<form className="queryForm" onSubmit={this.executeQuery}>
+							<h2> Appbase Stream browser </h2>
+					        <input type="text" placeholder="Username" />
+					        <input type="text" placeholder="Passowrd" />
+					        <input type="text" placeholder="Appname" />
+					        <input type="text" placeholder="Type" />
+					        <textarea placeholder="Query"  />
+					        <button type="submit"> Execute </button>
+					    </form>
+					</div>
+					<div id="col2">
+						<Feed posts={this.state.posts}/>
+					</div>
+					</div>
+				);
 			}
-		})
+		
+		});
+		
 		React.render(
-	      <Feed />,
-	      document.getElementById('col2')
-	    )
+		  <StreamBrowser />,
+		  document.getElementById('container2')
+		);
 	</script>
 
 </body>
