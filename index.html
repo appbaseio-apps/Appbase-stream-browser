@@ -110,6 +110,13 @@
 	    		this.setState({posts: updated});
 
 		  	},
+  			setValue: function(username, password, app_name){
+  	    		this.setState({username: username});
+  	    		this.setState({password: password});
+  	    		console.log(app_name)
+  	    		this.setState({app_name: app_name});
+  	    		console.log(this.state.username)
+  		  	},
 			executeQuery: function(e){
 								// Preserve self reference
 
