@@ -192,9 +192,9 @@
 				var self = this;
 				var appbaseRef = new Appbase({
 				  url: 'https://scalr.api.appbase.io',
-				  appname: 'testgsoc',
-				  username: 'JxGrCcfHZ',
-				  password: '1c46a541-98fa-404c-ad61-d41571a82e14'
+				  appname: this.state.app_name,
+				  username: this.state.username,
+				  password: this.state.password
 				});
 
 				appbaseRef.searchStream({
