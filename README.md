@@ -1,6 +1,7 @@
 # Appbase-stream-browser
 Appbase json stream viewer in React.js  
 [Demo](http://yashshah.github.io/Appbase-stream-browser/)
+![alt tag](http://g.recordit.co/3SYGKg8Gu9.gif) 
 
 ## Running Locally
 
