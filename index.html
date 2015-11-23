@@ -204,6 +204,7 @@
 							"match_all" : {}
 						}
 					}
+					type: this.state.type,
 				}).on('data', function(response) {
 				    self.addPost(response);
 				    // console.log("searchStream(), new match: ", response);
@@ -223,7 +224,7 @@
 					        <input type="text" placeholder="Username" value={this.state.username} />
 					        <input type="text" placeholder="Passowrd" value={this.state.password} />
 					        <input type="text" placeholder="Appname" value={this.state.app_name} />
-					        <input type="text" placeholder="Type" />
+					        <input type="text" placeholder="Type"  value={this.state.type} />
 					        <textarea placeholder="Query"  value={this.state.query}/>
 					        <button type="submit"> Execute </button>
 					    </form>
