@@ -198,13 +198,8 @@
 				});
 
 				appbaseRef.searchStream({
-					type: 'flipkart_app',
-					body: {
-						"query" : {
-							"match_all" : {}
-						}
-					}
 					type: this.state.type,
+					body: JSON.parse(this.state.query)
 				}).on('data', function(response) {
 				    self.addPost(response);
 				    // console.log("searchStream(), new match: ", response);
