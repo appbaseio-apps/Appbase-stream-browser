@@ -30,7 +30,7 @@
 					contentType: "application/json",
 
 					success: function(data) {
-						self.setState({options: data.body.apps});
+						self.setState({options_app: data.body.apps});
 					}.bind(this),
 					error: function(xhr, status, err) {
 						console.error(this.props.url, status, err.toString());
@@ -38,16 +38,18 @@
 				});
 
 				return {
-					options: [],
-					app_id: '' 
+					options_app: [],
+					options_type: [],
+					app_id: '',
+					app_type: ''
 				};
 			},
 
-			change: function(event){
+			changeApp: function(event){
 				this.setState({app_id: event.target.value});
 				var index = event.nativeEvent.target.selectedIndex;
 				var app_name=event.nativeEvent.target[index].text;
-
+				var self=this;
 				$.ajaxSetup({
 					crossDomain: true,
 					xhrFields: {
@@ -61,25 +63,61 @@
 					dataType: 'json',
 					contentType: "application/json",
 					success: function(data) {
-							this.props.onSelected(data.body[0].username, data.body[0].password, app_name)
+						this.props.onSelected(data.body[0].username, data.body[0].password, app_name)
+		  	    		$.ajax({
+							type: "GET",
+							xhrFields: {
+							  withCredentials: true
+							},
+							headers: {
+							  "Authorization": "Basic " + btoa(data.body[0].username+':'+data.body[0].password)
+							},
+							url: 'http://scalr.api.appbase.io/'+app_name+'/_mapping',
+							dataType: 'json',
+							contentType: "application/json",
+
+							success: function(data) {
+								self.setState({options_type: Object.keys(data[app_name].mappings)});
+								console.log(Object.keys(data[app_name].mappings))
+							}.bind(this),
+							error: function(xhr, status, err) {
+								console.error(this.props.url, status, err.toString());
+							}.bind(this)
+						});
+	
+
+
 					}.bind(this),
 					error: function(xhr, status, err) {
 						console.error(this.props.url, status, err.toString());
 					}.bind(this)
 				});
 			},
-
+			changeType: function(event){
+				this.setState({app_type: event.target.value});
+				this.props.onSelectedType(event.target.value)
+			},
 			render: function() {
-				options = $.map(this.state.options, function(app_id, app_name){
+				options_app = $.map(this.state.options_app, function(app_id, app_name){
 					return <option value={app_id}>{app_name}</option>;
 				});
+				options_type = $.map(this.state.options_type, function(app_type){
+					return <option value={app_type}>{app_type}</option>;
+				});
 				return(
-					<select id="app_info" onChange={this.change} value={this.state.app_id}>
-						{options}
+					<div>
+					<select id="app_info" onChange={this.changeApp} value={this.state.app_id}>
+						{options_app}
 					</select>
+					<select id="app_type" onChange={this.changeType} value={this.state.app_type}>
+						{options_type}
+					</select>
+					</div>
 				)
 			}
 		});
+
+
 		if (!library)
    			var library = {};
 		library.json = {
@@ -150,7 +188,6 @@
 		})
 		
 		var StreamBrowser = React.createClass({
-
 			// Set the initial component state
 			getInitialState: function(){
 				// Set initial application state using props
@@ -182,13 +219,35 @@
   			setValue: function(username, password, app_name){
   	    		this.setState({username: username});
   	    		this.setState({password: password});
-  	    		console.log(app_name)
   	    		this.setState({app_name: app_name});
-  	    		console.log(this.state.username)
+
+  	    		$.ajax({
+					type: "GET",
+					xhrFields: {
+					  withCredentials: true
+					},
+					headers: {
+					  "Authorization": "Basic " + btoa(username+':'+password)
+					},
+					url: 'http://scalr.api.appbase.io/'+app_name+'/_mapping',
+					dataType: 'json',
+					contentType: "application/json",
+
+					success: function(data) {
+						console.log(Object.keys(data[app_name].mappings))
+					}.bind(this),
+					error: function(xhr, status, err) {
+						console.error(this.props.url, status, err.toString());
+					}.bind(this)
+				});
+  		  	},
+  		  	setType: function(type){
+  		  		this.setState({
+  		  			type:type 
+  		  		});
   		  	},
 			executeQuery: function(e){
-								// Preserve self reference
-
+				// Preserve self reference
 				var self = this;
 				var appbaseRef = new Appbase({
 				  url: 'https://scalr.api.appbase.io',
@@ -215,7 +274,7 @@
 					<div id="col1">
 						<form className="queryForm" onSubmit={this.executeQuery}>
 							<h2> Appbase Stream browser </h2>
-							<Select onSelected={this.setValue} />
+							<Select onSelected={this.setValue} onSelectedType={this.setType}/>
 					        <input type="text" placeholder="Username" value={this.state.username} />
 					        <input type="text" placeholder="Passowrd" value={this.state.password} />
 					        <input type="text" placeholder="Appname" value={this.state.app_name} />
