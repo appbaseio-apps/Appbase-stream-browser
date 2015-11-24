@@ -12,6 +12,12 @@ git clone https://github.com/yashshah/Appbase-stream-browser.git
 - cd Appbase-stream-browser 
 - Start the sever by following command:  
 ```
-python -m SimpleHTTPServer 8001
+python -m SimpleHTTPServer 3000
 ```
-- Open [localhost:8001](http://localhost:8001)
+- For the first time, authorize by going to following [url](http://accapi.appbase.io/login/google?next=http://127.0.0.1:3000):
+```
+http://accapi.appbase.io/login/google?next=http://127.0.0.1:3000
+```
+
+
+- Open [localhost:3000](http://localhost:3000)
